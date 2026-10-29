@@ -14,6 +14,7 @@ Engine ini memungkinkan pengguna untuk berlatih trading meme coin menggunakan sa
 
 ## Daftar Isi
 
+- [Preview Aplikasi](#-preview-aplikasi)
 - [Latar Belakang](#-latar-belakang)
 - [Fitur Utama](#-fitur-utama)
 - [Arsitektur & Alur Data](#-arsitektur--alur-data)
@@ -23,6 +24,14 @@ Engine ini memungkinkan pengguna untuk berlatih trading meme coin menggunakan sa
 - [Dokumentasi REST API](#-dokumentasi-rest-api)
 - [Dokumentasi WebSocket (STOMP)](#-dokumentasi-websocket-stomp)
 - [Struktur Proyek](#-struktur-proyek)
+
+---
+
+## Preview Aplikasi
+
+Berikut adalah tampilan antarmuka *trading terminal* yang terintegrasi secara *real-time* dengan backend engine **SiMeme**:
+
+![SiMeme Trading Terminal Preview](docs/preview.png)
 
 ---
 
@@ -59,33 +68,33 @@ Sistem ini menggabungkan penyimpanan *in-memory cache* (`ConcurrentHashMap`) unt
 
 ```mermaid
 flowchart LR
-    subgraph External APIs
-        BE["Birdeye API\n(GET /defi/price)"]
-        DS["DexScreener API\n(Metadata Fallback)"]
+    subgraph External_APIs["External APIs"]
+        BE["Birdeye API (GET /defi/price)"]
+        DS["DexScreener API (Metadata Fallback)"]
     end
 
-    subgraph SiMeme Spring Boot Engine
-        BMS["BirdeyeMarketService\n(Round-Robin Scheduler)"]
-        PCS["PriceCacheService\n(In-Memory ConcurrentHashMap)"]
-        TS["TradingService\n(Buy / Sell / Slippage / PnL)"]
-        MBS["MarketBroadcastService\n(STOMP Broadcaster)"]
-        DB[("PostgreSQL\n(Users, Wallets, Tokens,\nPositions, TradeHistory)")]
+    subgraph Engine["SiMeme Spring Boot Engine"]
+        BMS["BirdeyeMarketService (Round-Robin Scheduler)"]
+        PCS["PriceCacheService (In-Memory ConcurrentHashMap)"]
+        TS["TradingService (Buy / Sell / Slippage / PnL)"]
+        MBS["MarketBroadcastService (STOMP Broadcaster)"]
+        DB[("PostgreSQL (Users, Wallets, Tokens, Positions, TradeHistory)")]
     end
 
-    subgraph Frontend Client
-        UI["Web Client (React/Vue/Next)"]
+    subgraph Client["Frontend Client"]
+        UI["Web Client (React / Vue / Next)"]
     end
 
-    BE -->|Spot Price & Liquidity| BMS
-    DS -->|Token Symbol, Name, Logo| BMS
-    BMS -->|Update RAM Cache| PCS
-    BMS -->|Persist Token & Last Price| DB
-    BMS -->|Trigger Broadcast| MBS
-    PCS -->|Read Instant Price| TS
-    PCS -->|Read Instant Price| MBS
-    TS <-->|ACID Transaction + Optimistic Lock| DB
-    MBS ==>|WS /topic/prices\nWS /topic/portfolio/{user}| UI
-    UI -->|REST /api/trade/*\nREST /api/tokens/*| TS
+    BE -->|"Spot Price & Liquidity"| BMS
+    DS -->|"Token Symbol, Name, Logo"| BMS
+    BMS -->|"Update RAM Cache"| PCS
+    BMS -->|"Persist Token & Last Price"| DB
+    BMS -->|"Trigger Broadcast"| MBS
+    PCS -->|"Read Instant Price"| TS
+    PCS -->|"Read Instant Price"| MBS
+    TS <-->|"ACID Transaction + Optimistic Lock"| DB
+    MBS ==>|"WS /topic/prices & /topic/portfolio/:username"| UI
+    UI -->|"REST /api/trade/* & /api/tokens/*"| TS
 ```
 
 ---
