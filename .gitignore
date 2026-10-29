@@ -36,5 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
-### Spring Boot ###
+### Spring Boot & Environment Secrets ###
 application.properties
+application-*.properties
+!application.properties.example
+.env
+*.env

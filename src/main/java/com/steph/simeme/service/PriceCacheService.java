@@ -24,7 +24,9 @@ public class PriceCacheService {
 
     // Menyimpan atau memperbarui harga di memori
     public void updatePrice(String contractAddress, BigDecimal price, BigDecimal liquidity) {
-        BigDecimal safeLiquidity = (liquidity != null) ? liquidity : new BigDecimal("100000"); // Default liquidity jika null
+        BigDecimal safeLiquidity = (liquidity != null && liquidity.compareTo(BigDecimal.ZERO) > 0)
+                ? liquidity
+                : new BigDecimal("100000"); // Default liquidity jika null atau 0
         priceCache.put(contractAddress, new TokenMarketState(price, safeLiquidity, Instant.now()));
     }
 
