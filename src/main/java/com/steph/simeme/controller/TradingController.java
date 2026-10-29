@@ -4,6 +4,7 @@ import com.steph.simeme.dto.BuyOrderRequest;
 import com.steph.simeme.dto.PortfolioResponse;
 import com.steph.simeme.dto.SellOrderRequest;
 import com.steph.simeme.entity.TradeHistory;
+import com.steph.simeme.service.MarketBroadcastService;
 import com.steph.simeme.service.TradingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +18,20 @@ import java.util.Map;
 public class TradingController {
 
     private final TradingService tradingService;
+    private final MarketBroadcastService marketBroadcastService; // <-- Inject Broadcaster
 
-    // 1. Endpoint untuk melihat saldo Wallet + daftar koin yang di-hold beserta persentase profit/loss
     @GetMapping("/portfolio/{username}")
     public ResponseEntity<PortfolioResponse> getPortfolio(@PathVariable String username) {
         return ResponseEntity.ok(tradingService.getUserPortfolio(username));
     }
 
-    // 2. Endpoint untuk eksekusi Beli Koin
     @PostMapping("/buy")
     public ResponseEntity<?> buyToken(@RequestBody BuyOrderRequest request) {
         try {
             TradeHistory trade = tradingService.executeBuy(request);
+            // Langsung push update portofolio terbaru ke layar user via WebSocket!
+            marketBroadcastService.broadcastSingleUserPortfolio(request.username());
+
             return ResponseEntity.ok(Map.of(
                     "status", "SUCCESS",
                     "side", "BUY",
@@ -43,11 +46,13 @@ public class TradingController {
         }
     }
 
-    // 3. Endpoint untuk eksekusi Jual Koin
     @PostMapping("/sell")
     public ResponseEntity<?> sellToken(@RequestBody SellOrderRequest request) {
         try {
             TradeHistory trade = tradingService.executeSell(request);
+            // Langsung push update portofolio terbaru ke layar user via WebSocket!
+            marketBroadcastService.broadcastSingleUserPortfolio(request.username());
+
             return ResponseEntity.ok(Map.of(
                     "status", "SUCCESS",
                     "side", "SELL",

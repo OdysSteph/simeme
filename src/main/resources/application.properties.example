@@ -1,0 +1,20 @@
+spring.application.name=simeme
+server.port=8080
+
+# Database Connection
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/simeme_db}
+spring.datasource.username=${DB_USERNAME:simeme}
+spring.datasource.password=${DB_PASSWORD:simeme}
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA Configuration
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# BirdEye Configuration (Daftar API Key gratis di https://bds.birdeye.so)
+birdeye.api.key=${BIRDEYE_API_KEY:ISI_API_KEY_BIRDEYE_KAMU_DISINI}
+birdeye.api.base-url=https://public-api.birdeye.so
+
+# CORS Configuration
+app.cors.allowed-origins=http://localhost:5173,http://localhost:3000,http://localhost:8081
